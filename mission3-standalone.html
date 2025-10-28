@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mission 3 — Encrypt the Launch Codes (Standalone)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Lightweight copy of mission styles (kept compact for portability) */
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background: linear-gradient(135deg,#0f0c29,#302b63,#24243e); color:#e0e0e0; margin:0; padding:24px; }
+    .page { max-width:1100px; margin:0 auto; background:rgba(15,13,34,0.9); border-radius:12px; padding:28px; box-shadow:0 20px 60px rgba(0,0,0,0.6); }
+    .hero { text-align:center; border-bottom:2px solid rgba(255,255,255,0.04); padding-bottom:16px; margin-bottom:18px }
+    h1 { color:#00d4ff; margin:0 0 6px; }
+    p.lead { color:#cfeeff; margin:0 }
+    .nav-tabs { display:flex; gap:8px; margin:18px 0 14px; flex-wrap:wrap }
+    .tab-button { background:transparent; border:1px solid rgba(0,212,255,0.12); color:#9be6ff; padding:8px 14px; border-radius:8px; cursor:pointer }
+    .tab-button.active { background:#00d4ff; color:#07101a; font-weight:600 }
+    .tab-content { display:none }
+    .tab-content.active { display:block }
+    .exercise-card { background:rgba(255,215,0,0.04); border:1px solid rgba(255,215,0,0.08); padding:14px; border-radius:8px; margin:12px 0 }
+    .code-block { background:#0b0b1a; border:1px solid rgba(0,212,255,0.08); padding:12px; border-radius:6px; font-family:monospace; color:#b8ffca; overflow:auto }
+    .download-anchor { background:#00d4ff; color:#061018; padding:10px 18px; border-radius:999px; text-decoration:none; display:inline-block; margin:6px 6px 0 0 }
+    .download-anchor:hover { opacity:0.95 }
+    .controls { margin-top:12px }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <h1>Cybersecurity Game — Mission 3</h1>
+      <p class="lead">Encrypt the Launch Codes — explore SHA‑256 and secure your database</p>
+    </header>
+
+    <div class="nav-tabs" role="tablist" aria-label="Mission sections">
+      <button class="tab-button active" onclick="switchTab('learn', event)">Learn</button>
+      <button class="tab-button" onclick="switchTab('practice', event)">Practice</button>
+      <button class="tab-button" onclick="switchTab('challenges', event)">Challenges</button>
+      <button class="tab-button" onclick="switchTab('downloads', event)">Downloads</button>
+    </div>
+
+    <main>
+      <section id="learn-tab" class="tab-content active">
+        <h2>Understanding Cryptographic Hashing</h2>
+        <p>Hashing creates a fixed-size fingerprint of data. It's one-way and deterministic.</p>
+        <div class="exercise-card">
+          <h4>Live SHA-256</h4>
+          <input id="learnHashInput" type="text" placeholder="Type something..." oninput="liveHash()" style="width:100%;padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#e8fbff">
+          <div id="liveHashOutput" style="display:none;margin-top:12px" class="code-block">
+            <div><strong>Your Input:</strong> <span id="liveInput"></span></div>
+            <div style="margin-top:6px"><strong>SHA-256:</strong> <span id="liveHash"></span></div>
+            <div style="margin-top:6px"><strong>Length:</strong> <span id="liveLength"></span></div>
+          </div>
+        </div>
+
+        <div class="exercise-card">
+          <h4>Avalanche Effect</h4>
+          <p>Change one character and the hash changes drastically.</p>
+          <div class="controls"><button onclick="demoAvalanche()" class="tab-button">Show Demo</button></div>
+          <div id="avalancheDemo" style="margin-top:12px"></div>
+        </div>
+      </section>
+
+      <section id="practice-tab" class="tab-content">
+        <h2>Practice Exercises</h2>
+        <div class="exercise-card">
+          <h4>Exercise 1 — Deterministic Hashing</h4>
+          <input id="ex1Input" placeholder="Enter launch code" style="width:100%;padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#e8fbff">
+          <div class="controls"><button onclick="exercise1()" class="tab-button">Hash It</button></div>
+          <div id="ex1Result" style="margin-top:10px"></div>
+          <div id="ex1Hint" style="display:none;margin-top:8px;color:#ffd93d">Hint: Hash the same input twice — results should match.</div>
+        </div>
+
+        <div class="exercise-card">
+          <h4>Exercise 2 — Compare Hashes</h4>
+          <input id="ex2Input1" placeholder="First code" style="width:100%;padding:10px;border-radius:6px;margin-bottom:6px">
+          <input id="ex2Input2" placeholder="Second code" style="width:100%;padding:10px;border-radius:6px;margin-bottom:6px">
+          <div class="controls"><button onclick="exercise2()" class="tab-button">Compare</button></div>
+          <div id="ex2Result" style="margin-top:10px"></div>
+        </div>
+
+        <div class="exercise-card">
+          <h4>Exercise 3 — Password Hashing</h4>
+          <textarea id="ex3Passwords" style="width:100%;padding:10px;border-radius:6px" placeholder="one password per line">password123
+mySecretPass</textarea>
+          <div class="controls"><button onclick="exercise3()" class="tab-button">Hash Passwords</button></div>
+          <div id="ex3Result" style="margin-top:10px"></div>
+        </div>
+      </section>
+
+      <section id="challenges-tab" class="tab-content">
+        <h2>Challenges</h2>
+        <div class="exercise-card">
+          <h4>Challenge 1 — Hash Function</h4>
+          <input id="ch1TestInput" placeholder="Test input" style="width:100%;padding:10px;border-radius:6px">
+          <div class="controls"><button onclick="challenge1()" class="tab-button">Run</button></div>
+          <div id="ch1Result" style="margin-top:10px"></div>
+        </div>
+
+        <div class="exercise-card">
+          <h4>Challenge 2 — Batch Processing</h4>
+          <textarea id="ch2Codes" placeholder="ALPHA-001,BRAVO-002" style="width:100%;padding:10px;border-radius:6px"></textarea>
+          <div class="controls"><button onclick="challenge2()" class="tab-button">Process</button></div>
+          <div id="ch2Progress" style="display:none;margin-top:8px;background:rgba(255,255,255,0.04);border-radius:8px;padding:6px"><div id="ch2ProgressFill" style="width:0;height:18px;background:linear-gradient(90deg,#00d4ff,#00ff88);border-radius:6px;color:#032"></div></div>
+          <div id="ch2Result" style="margin-top:10px"></div>
+        </div>
+
+        <div class="exercise-card">
+          <h4>Challenge 3 — Mock DB</h4>
+          <div class="controls"><button onclick="generateMockDB()" class="tab-button">Generate Mock DB</button> <button onclick="challenge3()" id="ch3Btn" style="display:none" class="tab-button">Secure Passwords</button></div>
+          <div id="mockDBDisplay" style="margin-top:10px"></div>
+          <div id="ch3Result" style="margin-top:10px"></div>
+        </div>
+      </section>
+
+      <section id="downloads-tab" class="tab-content">
+        <h2>Downloads</h2>
+        <p>Place the following Python files next to this HTML file and the links will download them:</p>
+        <a class="download-anchor" href="mission3_hashing_lab.py" download>mission3_hashing_lab.py</a>
+        <a class="download-anchor" href="mission3_launch_codes.py" download>mission3_launch_codes.py</a>
+        <a class="download-anchor" href="mission3_secure_database.py" download>mission3_secure_database.py</a>
+        <a class="download-anchor" href="mission3_complete_solution.py" download>mission3_complete_solution.py</a>
+      </section>
+    </main>
+
+    <footer style="margin-top:22px;color:#bcd; font-size:0.9rem">Standalone mission — drop this file anywhere and add the four .py files beside it to enable downloads.</footer>
+  </div>
+
+  <script>
+  // Inline mission JS (extracted and slightly trimmed for standalone use)
+  // --- sha256 and UI functions ---
+  async function sha256(text) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function liveHash(){
+    const input = document.getElementById('learnHashInput').value;
+    if(!input){ document.getElementById('liveHashOutput').style.display='none'; return; }
+    const hash = await sha256(input);
+    document.getElementById('liveInput').textContent = input;
+    document.getElementById('liveHash').textContent = hash;
+    document.getElementById('liveLength').textContent = hash.length;
+    document.getElementById('liveHashOutput').style.display = 'block';
+  }
+
+  async function demoAvalanche(){
+    const texts=['LAUNCH-CODE-001','LAUNCH-CODE-002','LAUNCH-CODE-00','launch-code-001'];
+    let html = '<div class="code-block"><pre>Input                -> Hash (first 40 chars)\n' + '-'.repeat(60) + '\n';
+    for(const t of texts){ const h = await sha256(t); html += `${t.padEnd(20)} -> ${h.substring(0,40)}...\n`; }
+    html += '</pre></div>';
+    html += '<p style="color:#00ff88;margin-top:8px">Tiny changes produce very different hashes.</p>';
+    document.getElementById('avalancheDemo').innerHTML = html;
+  }
+
+  async function exercise1(){ const input=document.getElementById('ex1Input').value; if(!input){alert('Enter a code');return;} const h1=await sha256(input); const h2=await sha256(input); document.getElementById('ex1Result').innerHTML=`<div class="code-block"><pre>Input: ${input}\nHash1: ${h1}\nHash2: ${h2}\nMatch: ${h1===h2}</pre></div>`; document.getElementById('ex1Hint').style.display='block'; }
+
+  async function exercise2(){ const a=document.getElementById('ex2Input1').value; const b=document.getElementById('ex2Input2').value; if(!a||!b){alert('Enter both');return;} const h1=await sha256(a); const h2=await sha256(b); let dif=0; for(let i=0;i<h1.length;i++) if(h1[i]!==h2[i]) dif++; document.getElementById('ex2Result').innerHTML=`<div class="code-block"><pre>Input1: ${a}\nHash1: ${h1}\n\nInput2: ${b}\nHash2: ${h2}\n\nDifferent hex chars: ${dif} / ${h1.length}</pre></div>`; }
+
+  async function exercise3(){ const ps=document.getElementById('ex3Passwords').value.split('\n').map(s=>s.trim()).filter(Boolean); if(ps.length===0){alert('Enter passwords');return;} let out='<div class="code-block"><pre>PLAINTEXT\n' + '-'.repeat(60) + '\n' + ps.join('\n') + '\n\nHASHED\n' + '-'.repeat(60) + '\n'; for(const p of ps){ out += (await sha256(p)) + '\n'; } out += '</pre></div>'; out += '<p style="color:#ff6b6b">Don\'t store plaintext passwords.</p>'; document.getElementById('ex3Result').innerHTML = out; }
+
+  async function challenge1(){ const v=document.getElementById('ch1TestInput').value; if(!v){alert('Enter input');return;} const h=await sha256(v); const e=await sha256(''); document.getElementById('ch1Result').innerHTML = `<div class="code-block"><pre>Input: ${v}\nHash: ${h}\nEmpty hash: ${e}</pre></div><p style="color:#00ff88">Function OK</p>`; }
+
+  async function challenge2(){ const codes=document.getElementById('ch2Codes').value.split(',').map(s=>s.trim()).filter(Boolean); if(codes.length===0){alert('Enter codes');return;} const progress=document.getElementById('ch2Progress'); const fill=document.getElementById('ch2ProgressFill'); progress.style.display='block'; let results=''; for(let i=0;i<codes.length;i++){ const c=codes[i]; const h=await sha256(c); results += `${i+1}. ${c} -> ${h}\n\n`; fill.style.width = Math.round((i+1)/codes.length*100) + '%'; fill.textContent = Math.round((i+1)/codes.length*100) + '%'; await new Promise(r=>setTimeout(r,120)); } document.getElementById('ch2Result').innerHTML = `<div class="code-block"><pre>${results}</pre></div>`; }
+
+  function generateMockDB(){ window.mockDB=[{id:1,username:'admin',password:'admin123'},{id:2,username:'commander',password:'spaceDefense2024'},{id:3,username:'pilot_alpha',password:'flyHigh!'},{id:4,username:'engineer',password:'fixThings'},{id:5,username:'scientist',password:'quantum42'}]; let out='<div class="code-block"><pre>Mock DB\nID | Username | Password\n' + window.mockDB.map(u=>`${u.id} | ${u.username} | ${u.password}`).join('\n') + '</pre></div>'; out += '<p style="color:#ff4757">Danger: passwords visible</p>'; document.getElementById('mockDBDisplay').innerHTML = out; document.getElementById('ch3Btn').style.display='inline-block'; }
+
+  async function challenge3(){ if(!window.mockDB || window.mockDB.length===0){alert('Generate mock DB first');return;} let out='<div class="code-block"><pre>Secured DB\nID | Username | PasswordHash\n'; for(const u of window.mockDB){ const h=await sha256(u.password); out += `${u.id} | ${u.username} | ${h}\n`; } out += '</pre></div>'; out += '<p style="color:#00ff88">All passwords hashed</p>'; document.getElementById('ch3Result').innerHTML = out; }
+
+  function switchTab(name, evt){ document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active')); const tab=document.getElementById(name+'-tab'); if(tab) tab.classList.add('active'); if(evt && evt.target) evt.target.classList.add('active'); }
+
+  // Expose to inline handlers
+  window.switchTab = switchTab; window.liveHash = liveHash; window.demoAvalanche = demoAvalanche; window.exercise1=exercise1; window.exercise2=exercise2; window.exercise3=exercise3; window.challenge1=challenge1; window.challenge2=challenge2; window.generateMockDB=generateMockDB; window.challenge3=challenge3;
+
+  // Small init: ensure first tab active
+  document.addEventListener('DOMContentLoaded', ()=>{ const firstBtn=document.querySelector('.tab-button'); if(firstBtn) firstBtn.classList.add('active'); });
+  </script>
+</body>
+</html>
